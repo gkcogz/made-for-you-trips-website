@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey Builder - With a Local</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/builder.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">With a Local</div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#">Experiences</a></li>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#" class="contact-button">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="builder-main-content">
+        <div class="builder-container">
+            <div class="itinerary-column">
+                <h2>Your Custom Journey</h2>
+                <ul id="itinerary-list">
+                    </ul>
+                <div class="summary">
+                    <h3>Trip Summary</h3>
+                    <p>Total Duration: <span id="total-duration">0</span> hours</p>
+                    <p>Estimated Price: $<span id="total-price">0</span></p>
+                    <button class="finalize-button">Finalize & Book</button>
+                </div>
+            </div>
+
+            <div class="pool-column">
+                <h2>Activity Pool</h2>
+                <p class="instructions">Click a step on the left to replace, then choose an activity from here.</p>
+                <div id="activity-pool">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/journey-builder.js"></script>
+</body>
+</html>
