@@ -1,0 +1,92 @@
+[
+    {
+        "id": 101,
+        "name": "Grand Bazaar Spice Hunt",
+        "description": "Discover hidden spices and Turkish delight.",
+        "duration": 3,
+        "price": 50,
+        "properties": {
+            "focus": ["food", "culture"],
+            "pace": "energetic",
+            "style": "popular",
+            "dietary": ["vegan-friendly", "vegetarian-friendly"],
+            "inclusivity": [],
+            "interest": ["shopping"]
+        }
+    },
+    {
+        "id": 102,
+        "name": "Bosphorus Ferry Ride",
+        "description": "A relaxing cruise between two continents.",
+        "duration": 2,
+        "price": 25,
+        "properties": {
+            "focus": ["culture"],
+            "pace": "calm",
+            "style": "popular",
+            "dietary": [],
+            "inclusivity": ["lgbt-friendly", "family-friendly"],
+            "interest": ["sightseeing"]
+        }
+    },
+    {
+        "id": 103,
+        "name": "Hagia Sophia History Tour",
+        "description": "Explore the depths of a world wonder.",
+        "duration": 2.5,
+        "price": 40,
+        "properties": {
+            "focus": ["history", "culture"],
+            "pace": "calm",
+            "style": "popular",
+            "dietary": [],
+            "inclusivity": [],
+            "interest": ["history"]
+        }
+    },
+    {
+        "id": 104,
+        "name": "Karaköy Vegan Food Tour",
+        "description": "Taste the best plant-based dishes in Istanbul's coolest neighborhood.",
+        "duration": 3,
+        "price": 70,
+        "properties": {
+            "focus": ["food"],
+            "pace": "energetic",
+            "style": "hidden",
+            "dietary": ["vegan"],
+            "inclusivity": ["lgbt-friendly"],
+            "interest": ["foodie"]
+        }
+    },
+    {
+        "id": 105,
+        "name": "Galata & Beyoğlu LGBT+ History Walk",
+        "description": "Discover the stories and safe spaces of Istanbul's queer history.",
+        "duration": 2.5,
+        "price": 35,
+        "properties": {
+            "focus": ["history", "culture"],
+            "pace": "calm",
+            "style": "hidden",
+            "dietary": [],
+            "inclusivity": ["lgbt-friendly"],
+            "interest": ["community"]
+        }
+    },
+    {
+        "id": 106,
+        "name": "Belgrad Forest Nature Escape",
+        "description": "A guided hike and picnic in Istanbul's green lungs.",
+        "duration": 4,
+        "price": 45,
+        "properties": {
+            "focus": ["nature", "wellness"],
+            "pace": "energetic",
+            "style": "hidden",
+            "dietary": ["vegan-friendly", "vegetarian-friendly"],
+            "inclusivity": ["family-friendly"],
+            "interest": ["nature", "photography"]
+        }
+    }
+]

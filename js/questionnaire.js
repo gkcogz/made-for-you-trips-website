@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             key: 'pace',
             question: "What's your ideal travel pace?",
+            type: 'single', // Tek seçim
             options: [
                 { text: "Energetic & Adventurous", value: 'energetic', icon: '⚡️' },
                 { text: "Calm & Relaxing", value: 'calm', icon: '🧘' }
@@ -11,17 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             key: 'focus',
             question: "What's your primary interest?",
+            type: 'single',
             options: [
                 { text: "History & Culture", value: 'history', icon: '🏛️' },
-                { text: "Food & Gastronomy", value: 'food', icon: '🍲' }
+                { text: "Food & Gastronomy", value: 'food', icon: '🍲' },
+                { text: "Nature & Wellness", value: 'nature', icon: '🌳' }
             ]
         },
         {
-            key: 'style',
-            question: "How do you like to explore?",
+            key: 'preferences',
+            question: "Any special preferences we should consider?",
+            type: 'multiple', // Çoklu seçim
             options: [
-                { text: "Iconic & Popular Spots", value: 'popular', icon: '🌟' },
-                { text: "Hidden Local Gems", value: 'hidden', icon: '💎' }
+                { text: "Vegan-Friendly Options", value: 'vegan', icon: '🌱' },
+                { text: "LGBT+ Friendly Spaces", value: 'lgbt-friendly', icon: '🏳️‍🌈' }
             ]
         }
     ];
@@ -35,42 +39,68 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayQuestion() {
         const questionData = questions[currentQuestionIndex];
         
-        // Kartı temizle ve içeriği oluştur
+        let optionsHtml = questionData.options.map(opt => `
+            <div class="option-card" data-value="${opt.value}">
+                <div class="icon">${opt.icon}</div>
+                <h3>${opt.text}</h3>
+            </div>
+        `).join('');
+
+        let actionButton = '';
+        if (questionData.type === 'multiple') {
+            optionsHtml += `<button id="next-button" class="cta-button">Continue</button>`;
+        }
+
         questionCard.innerHTML = `
             <h2>${questionData.question}</h2>
-            <div class="options-container">
-                ${questionData.options.map(opt => `
-                    <div class="option-card" data-value="${opt.value}" data-key="${questionData.key}">
-                        <div class="icon">${opt.icon}</div>
-                        <h3>${opt.text}</h3>
-                    </div>
-                `).join('')}
+            <div class="options-container ${questionData.type === 'multiple' ? 'multiple-choice' : ''}">
+                ${optionsHtml}
             </div>
         `;
         
-        // Seçeneklere tıklama olayını ekle
         document.querySelectorAll('.option-card').forEach(card => {
-            card.addEventListener('click', handleOptionSelect);
+            card.addEventListener('click', (e) => handleOptionSelect(e, questionData));
         });
+
+        if (questionData.type === 'multiple') {
+            document.getElementById('next-button').addEventListener('click', goToNextQuestion);
+        }
     }
 
-    function handleOptionSelect(e) {
+    function handleOptionSelect(e, questionData) {
         const selectedCard = e.currentTarget;
-        userAnswers[selectedCard.dataset.key] = selectedCard.dataset.value;
-        
+        const value = selectedCard.dataset.value;
+
+        if (questionData.type === 'single') {
+            userAnswers[questionData.key] = value;
+            goToNextQuestion();
+        } else { // Multiple choice
+            selectedCard.classList.toggle('selected');
+            const key = questionData.key;
+            if (!userAnswers[key]) userAnswers[key] = [];
+
+            if (selectedCard.classList.contains('selected')) {
+                userAnswers[key].push(value);
+            } else {
+                userAnswers[key] = userAnswers[key].filter(v => v !== value);
+            }
+        }
+    }
+
+    function goToNextQuestion() {
         currentQuestionIndex++;
         updateProgressBar();
         
-        questionCard.classList.add('fade-out'); // Kartı soluklaştır
+        questionCard.classList.add('fade-out');
 
         setTimeout(() => {
             if (currentQuestionIndex < questions.length) {
                 displayQuestion();
-                questionCard.classList.remove('fade-out'); // Yeni kartı göster
+                questionCard.classList.remove('fade-out');
             } else {
                 redirectToBuilder();
             }
-        }, 400); // Animasyon süresiyle eşleşmeli
+        }, 400);
     }
 
     function updateProgressBar() {
@@ -79,11 +109,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function redirectToBuilder() {
-        // Cevapları URL parametresine çevir
-        const queryParams = new URLSearchParams(userAnswers).toString();
-        window.location.href = `journey-builder.html?${queryParams}`;
+        const queryParams = new URLSearchParams();
+        for (const key in userAnswers) {
+            const value = userAnswers[key];
+            if (Array.isArray(value)) {
+                value.forEach(v => queryParams.append(key, v));
+            } else {
+                queryParams.set(key, value);
+            }
+        }
+        window.location.href = `journey-builder.html?${queryParams.toString()}`;
     }
 
-    // İlk soruyu göstererek başla
     displayQuestion();
 });

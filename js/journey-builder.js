@@ -1,35 +1,77 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 
-    // --- VERİLER ---
-    const activityPool = [
-        { id: 101, name: "Grand Bazaar Spice Hunt", description: "Discover hidden spices and Turkish delight.", duration: 3, price: 50 },
-        { id: 102, name: "Bosphorus Ferry Ride", description: "A relaxing cruise between two continents.", duration: 2, price: 25 },
-        { id: 103, name: "Hagia Sophia History Tour", description: "Explore the depths of a world wonder.", duration: 2.5, price: 40 },
-        { id: 104, name: "Turkish Coffee Workshop", description: "Learn to make and read fortunes in coffee.", duration: 2, price: 60 },
-        { id: 105, name: "Galata Tower Sunset View", description: "See Istanbul's magical sunset from the top.", duration: 1.5, price: 20 },
-        { id: 106, name: "Street Art in Kadıköy", description: "Explore the vibrant murals of the Asian side.", duration: 3, price: 30 }
-    ];
+    // --- AŞAMA 1: VERİLERİ HARİCİ JSON DOSYASINDAN ÇEKME ---
+    let activityPool = [];
+    try {
+        const response = await fetch('activities.json');
+        if (!response.ok) {
+            throw new Error(`Network response was not ok, status: ${response.status}`);
+        }
+        activityPool = await response.json();
+    } catch (error) {
+        console.error('Failed to load activities.json:', error);
+        // Hata durumunda kullanıcıya bilgi verelim
+        const poolContainer = document.getElementById('activity-pool');
+        if(poolContainer) poolContainer.innerHTML = '<p style="color: red;">Could not load activities. Please check the console for errors and ensure activities.json exists.</p>';
+        return; // Hata varsa script'in devamını çalıştırma
+    }
 
-    let currentItinerary = [ activityPool[2], activityPool[0], activityPool[4] ];
+    let currentItinerary = [];
+    let draggedItem = null; // Sürüklenen öğeyi takip etmek için
 
-    // --- DOM ELEMENTLERİ ---
+    // --- AŞAMA 2: DOM ELEMENTLERİNİ SEÇME ---
     const itineraryList = document.getElementById('itinerary-list');
     const activityPoolContainer = document.getElementById('activity-pool');
     const totalDurationEl = document.getElementById('total-duration');
     const totalPriceEl = document.getElementById('total-price');
 
-    // --- SÜRÜKLE-BIRAK DEĞİŞKENLERİ ---
-    let draggedItem = null; // Sürüklenen öğeyi takip etmek için
+    // --- AŞAMA 3: ANKETE GÖRE KİŞİSELLEŞTİRİLMİŞ ROTA OLUŞTURMA ---
+    function generateInitialItinerary(choices) {
+        let scoredActivities = activityPool.map(activity => {
+            let score = 0;
+            const props = activity.properties;
 
-    // --- ANA FONKSİYONLAR ---
+            // Puanlama Mantığı
+            if (props.pace === choices.get('pace')) score += 2;
+            if (props.focus.includes(choices.get('focus'))) score += 3; // Odak noktası daha önemli
+            
+            // Çoklu seçilebilen özel tercihleri kontrol et
+            const preferences = choices.getAll('preferences'); // ['vegan', 'lgbt-friendly'] gibi bir dizi döner
+            preferences.forEach(pref => {
+                if ((props.dietary && props.dietary.includes(pref)) || 
+                    (props.inclusivity && props.inclusivity.includes(pref))) {
+                    score += 5; // Özel tercihler en yüksek puanı alır
+                }
+            });
+
+            return { ...activity, score };
+        });
+
+        // En yüksek puanlıları en üste alacak şekilde sırala
+        scoredActivities.sort((a, b) => b.score - a.score);
+        
+        // En yüksek puanlı ilk 3 etkinliği rotaya ekle
+        return scoredActivities.slice(0, 3);
+    }
+
+    const userChoices = new URLSearchParams(window.location.search);
+    if (userChoices.has('pace') && activityPool.length > 0) {
+        // Eğer anketten gelen cevaplar varsa, kişiselleştirilmiş rotayı oluştur
+        currentItinerary = generateInitialItinerary(userChoices);
+    } else if (activityPool.length > 0) {
+        // Cevap yoksa, standart bir varsayılan rota ata
+        currentItinerary = activityPool.length > 2 ? [activityPool[0], activityPool[1], activityPool[2]] : [];
+    }
+    
+    // --- AŞAMA 4: EKRANI GÜNCELLEYEN ANA FONKSİYONLAR ---
 
     function renderItinerary() {
-        itineraryList.innerHTML = ''; 
+        itineraryList.innerHTML = '';
         currentItinerary.forEach((step, index) => {
             const stepElement = document.createElement('li');
             stepElement.className = 'itinerary-step';
-            stepElement.dataset.index = index; // Sıralama için index'i sakla
-            stepElement.setAttribute('draggable', 'true'); // SÜRÜKLENEBİLİR YAP
+            stepElement.dataset.index = index;
+            stepElement.setAttribute('draggable', 'true');
             stepElement.innerHTML = `
                 <h4>${index + 1}. ${step.name}</h4>
                 <p>${step.description}</p>
@@ -46,8 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
         activityPool.forEach(activity => {
             const poolItem = document.createElement('div');
             poolItem.className = 'pool-item';
-            poolItem.dataset.id = activity.id; // Değiştirme için id'yi sakla
-            poolItem.setAttribute('draggable', 'true'); // SÜRÜKLENEBİLİR YAP
+            poolItem.dataset.id = activity.id;
+            poolItem.setAttribute('draggable', 'true');
             poolItem.innerHTML = `
                 <h4>${activity.name}</h4>
                 <p>+${activity.duration}h | +$${activity.price}</p>
@@ -64,15 +106,13 @@ document.addEventListener('DOMContentLoaded', () => {
         totalPriceEl.textContent = totalPrice;
     }
 
-    // --- SÜRÜKLE-BIRAK ETKİLEŞİMLERİ ---
+    // --- AŞAMA 5: SÜRÜKLE-BIRAK ETKİLEŞİMLERİ ---
 
-    // 1. Havuz Elemanları İçin Sürükleme Olayları
     function addPoolDragListeners() {
         const poolItems = document.querySelectorAll('.pool-item');
         poolItems.forEach(item => {
             item.addEventListener('dragstart', (e) => {
                 draggedItem = e.target;
-                // Sürüklenen verinin tipini ve ID'sini sakla
                 e.dataTransfer.setData('text/plain', `pool-${item.dataset.id}`);
                 setTimeout(() => item.classList.add('dragging'), 0);
             });
@@ -83,13 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Rota Adımları İçin Sürükleme ve Bırakma Olayları
     function addItineraryDragListeners() {
         const itinerarySteps = document.querySelectorAll('.itinerary-step');
         itinerarySteps.forEach(step => {
             step.addEventListener('dragstart', (e) => {
                 draggedItem = e.target;
-                // Sürüklenen verinin tipini ve INDEX'ini sakla
                 e.dataTransfer.setData('text/plain', `itinerary-${step.dataset.index}`);
                 setTimeout(() => step.classList.add('dragging'), 0);
             });
@@ -99,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             step.addEventListener('dragover', (e) => {
-                e.preventDefault(); // Bırakma işlemine izin ver
+                e.preventDefault();
                 step.classList.add('drag-over');
             });
 
@@ -117,26 +155,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 const targetIndex = parseInt(step.dataset.index);
 
                 if (type === 'pool') {
-                    // HAVUZDAN BİR ELEMAN BIRAKILDIYSA (DEĞİŞTİRME)
                     const activityId = parseInt(idOrIndex);
                     const newActivity = activityPool.find(act => act.id === activityId);
-                    currentItinerary[targetIndex] = newActivity; // Rotadaki adımı değiştir
+                    if (newActivity) {
+                        currentItinerary[targetIndex] = newActivity;
+                    }
                 } 
                 else if (type === 'itinerary') {
-                    // ROTADAN BİR ELEMAN BIRAKILDIYSA (YENİDEN SIRALAMA)
                     const draggedIndex = parseInt(idOrIndex);
-                    
-                    // Elemanı kaldır ve yeni yerine ekle
                     const [removedItem] = currentItinerary.splice(draggedIndex, 1);
                     currentItinerary.splice(targetIndex, 0, removedItem);
                 }
-
-                renderItinerary(); // Değişiklikten sonra rotayı yeniden çiz
+                renderItinerary();
             });
         });
     }
 
-    // --- İLK YÜKLEME ---
+    // --- AŞAMA 6: SAYFANIN İLK YÜKLENMESİ ---
     renderItinerary();
     renderActivityPool();
 });

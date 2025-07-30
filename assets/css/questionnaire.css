@@ -81,3 +81,31 @@ body {
     font-size: 1.2rem;
     color: #34495e;
 }
+/* questionnaire.css dosyasının sonuna ekleyin */
+.options-container.multiple-choice {
+    flex-wrap: wrap;
+}
+
+.option-card.selected {
+    border-color: #27ae60;
+    background-color: #f0fdf4;
+}
+
+#next-button {
+    margin-top: 2rem;
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+#next-button:hover {
+    background-color: #c0392b;
+}
