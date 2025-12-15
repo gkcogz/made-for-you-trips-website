@@ -20,7 +20,13 @@ export default function BlogPage() {
                     {allPostsData.map(({ id, date, title, author, excerpt, cover_image }) => (
                         <div className="post-card" key={id}>
                             <Link href={`/blog/${id}`} className="post-card-image-link">
-                                <Image src={cover_image} alt={title} width={800} height={400} style={{ objectFit: 'cover' }}/>
+                                <Image 
+                                    src={cover_image} 
+                                    alt={title} 
+                                    width={800} 
+                                    height={400} 
+                                    style={{ objectFit: 'cover' }}
+                                />
                             </Link>
                             <div className="post-card-content">
                                 <div className="post-category">Travel Inspiration</div>

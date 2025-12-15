@@ -1,5 +1,5 @@
 // app/about/page.js
-import Image from 'next/image'; // Resim optimizasyonu için Next.js'in Image bileşenini kullanıyoruz
+import Image from 'next/image';
 
 export default function AboutPage() {
     return (
@@ -18,7 +18,7 @@ export default function AboutPage() {
                     <div className="team-card">
                         <div className="team-image-container">
                             <Image
-                                src="/team/oguz.jpg" // public klasöründeki dosya yolu
+                                src="/team/oguz.jpg"
                                 alt="Photo of Oğuz Can Gökçe"
                                 width={200}
                                 height={200}
@@ -27,7 +27,8 @@ export default function AboutPage() {
                         </div>
                         <h3>Oğuz Can Gökçe</h3>
                         <h4>Co-Founder & Visionary</h4>
-                        <p>Oğuz is the driving force behind M4U's mission. With a background in technology and a love for authentic stories, he's dedicated to building a platform that truly connects people.</p>
+                        {/* DÜZELTME: M4U's -> M4U&apos;s ve he's -> he&apos;s olarak değiştirildi */}
+                        <p>Oğuz is the driving force behind M4U&apos;s mission. With a background in technology and a love for authentic stories, he&apos;s dedicated to building a platform that truly connects people.</p>
                     </div>
 
                     {/* Aras Toksoy Kartı */}

@@ -20,7 +20,8 @@ export default function HomePage() {
           </div>
           <div className="step">
             <h3>2. Meet Your Local Insider</h3>
-            <p>We`ll connect you with a handpicked local guide who shares your passions.</p>
+            {/* Aşağıdaki satırda ' işareti &apos; olarak güncellendi */}
+            <p>We&apos;ll connect you with a handpicked local guide who shares your passions.</p>
           </div>
           <div className="step">
             <h3>3. Enjoy Your Custom Journey</h3>
